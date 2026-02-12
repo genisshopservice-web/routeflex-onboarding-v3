@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteFlex - Your Vehicle | Step 8 of 10</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #1173D4;
+            --primary-light: #1a8cff;
+            --primary-dark: #0d5aad;
+            --success: #10B981;
+            --dark-bg: #0a0a0f;
+            --dark-card: #13131a;
+            --dark-border: #2a2a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b6b7b;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Progress Stepper */
+        .stepper {
+            background: var(--dark-card);
+            border-bottom: 1px solid var(--dark-border);
+            padding: 20px;
+        }
+        
+        .stepper-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .stepper-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .stepper-title span {
+            color: var(--primary-light);
+        }
+        
+        .stepper-percent {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary-light);
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: var(--dark-border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 3px;
+            width: 80%;
+            transition: width 0.5s ease;
+        }
+        
+        .steps-indicator {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+        
+        .steps-indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--dark-border);
+            z-index: 0;
+        }
+        
+        .step {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--dark-bg);
+            border: 2px solid var(--dark-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(17, 115, 212, 0.2);
+        }
+        
+        .step.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        
+        .step.completed::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 12px;
+        }
+        
+        .step.completed span {
+            display: none;
+        }
+        
+        /* Content */
+        .content {
+            flex: 1;
+            padding: 24px 20px;
+            overflow-y: auto;
+        }
+        
+        .step-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        
+        .step-title span {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #64b5f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .step-subtitle {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        
+        /* Vehicle Selection */
+        .vehicle-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .vehicle-card {
+            background: var(--dark-card);
+            border: 2px solid var(--dark-border);
+            border-radius: 20px;
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .vehicle-card:hover {
+            border-color: rgba(17, 115, 212, 0.4);
+            transform: translateY(-4px);
+        }
+        
+        .vehicle-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(17, 115, 212, 0.1) 0%, rgba(17, 115, 212, 0.05) 100%);
+        }
+        
+        .vehicle-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(17, 115, 212, 0.1);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 36px;
+            color: var(--primary-light);
+            transition: all 0.3s ease;
+        }
+        
+        .vehicle-card.selected .vehicle-icon {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            box-shadow: 0 8px 24px rgba(17, 115, 212, 0.4);
+        }
+        
+        .vehicle-name {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+        
+        .vehicle-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        /* Registration Input */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+        
+        .reg-input-group {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .reg-input {
+            flex: 1;
+            padding: 18px;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 14px;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 3px;
+            color: white;
+            transition: all 0.2s;
+        }
+        
+        .reg-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(17, 115, 212, 0.1);
+        }
+        
+        .lookup-btn {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Vehicle Details Card */
+        .vehicle-details {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .vehicle-details-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .vehicle-details-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--success);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .vehicle-details-title {
+            font-weight: 700;
+        }
+        
+        .vehicle-details-status {
+            font-size: 13px;
+            color: var(--success);
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .detail-item h4 {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        
+        .detail-item p {
+            font-weight: 600;
+        }
+        
+        /* Checkbox */
+        .confirmation {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: rgba(17, 115, 212, 0.1);
+            border: 1px solid rgba(17, 115, 212, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        
+        .confirmation input {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            accent-color: var(--primary);
+        }
+        
+        .confirmation label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        
+        .confirmation label strong {
+            color: white;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: var(--dark-card);
+            border-top: 1px solid var(--dark-border);
+            padding: 16px 20px 24px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 16px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-back {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--dark-border);
+        }
+        
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        
+        .btn-next {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(17, 115, 212, 0.4);
+        }
+        
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(17, 115, 212, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Progress Stepper -->
+        <div class="stepper">
+            <div class="stepper-header">
+                <div class="stepper-title">Step <span>8</span> of 10</div>
+                <div class="stepper-percent">80%</div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="steps-indicator">
+                <div class="step completed"><span>1</span></div>
+                <div class="step completed"><span>2</span></div>
+                <div class="step completed"><span>3</span></div>
+                <div class="step completed"><span>4</span></div>
+                <div class="step completed"><span>5</span></div>
+                <div class="step completed"><span>6</span></div>
+                <div class="step completed"><span>7</span></div>
+                <div class="step active"><span>8</span></div>
+                <div class="step"><span>9</span></div>
+                <div class="step"><span>10</span></div>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <h1 class="step-title">What do you<br><span>drive?</span></h1>
+            <p class="step-subtitle">Select your vehicle type and enter your registration.</p>
+            
+            <!-- Vehicle Options -->
+            <div class="vehicle-options">
+                <div class="vehicle-card" onclick="selectVehicle(this)">
+                    <div class="vehicle-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="vehicle-name">Car</div>
+                    <div class="vehicle-desc">For small parcels</div>
+                </div>
+                <div class="vehicle-card selected" onclick="selectVehicle(this)">
+                    <div class="vehicle-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="vehicle-name">Van</div>
+                    <div class="vehicle-desc">For larger items</div>
+                </div>
+            </div>
+            
+            <!-- Registration -->
+            <div class="form-group">
+                <label class="form-label">Vehicle Registration</label>
+                <div class="reg-input-group">
+                    <input type="text" class="reg-input" placeholder="AB12 CDE" value="AB12 CDE">
+                    <button class="lookup-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Vehicle Details -->
+            <div class="vehicle-details">
+                <div class="vehicle-details-header">
+                    <div class="vehicle-details-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>
+                        <div class="vehicle-details-title">Vehicle Verified</div>
+                        <div class="vehicle-details-status">Ready for deliveries</div>
+                    </div>
+                </div>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <h4>Make</h4>
+                        <p>Ford</p>
+                    </div>
+                    <div class="detail-item">
+                        <h4>Model</h4>
+                        <p>Transit</p>
+                    </div>
+                    <div class="detail-item">
+                        <h4>Year</h4>
+                        <p>2022</p>
+                    </div>
+                    <div class="detail-item">
+                        <h4>Colour</h4>
+                        <p>White</p>
+                    </div>
+                    <div class="detail-item">
+                        <h4>MOT</h4>
+                        <p style="color: var(--success);">Valid</p>
+                    </div>
+                    <div class="detail-item">
+                        <h4>Tax</h4>
+                        <p style="color: var(--success);">Taxed</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Confirmation -->
+            <div class="confirmation">
+                <input type="checkbox" id="confirm" checked>
+                <label for="confirm">
+                    <strong>I confirm</strong> this is the vehicle I'll use for RouteFlex deliveries.
+                </label>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="btn btn-back" onclick="location.href='step-2-identity.html'">
+                <i class="fas fa-arrow-left"></i>
+                Back
+            </button>
+            <button class="btn btn-next" onclick="alert('Next step coming soon!')">
+                Continue
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        function selectVehicle(element) {
+            document.querySelectorAll('.vehicle-card').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+    </script>
+</body>
+</html>

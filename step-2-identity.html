@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteFlex - Identity Verification | Step 2 of 10</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #1173D4;
+            --primary-light: #1a8cff;
+            --primary-dark: #0d5aad;
+            --success: #10B981;
+            --dark-bg: #0a0a0f;
+            --dark-card: #13131a;
+            --dark-border: #2a2a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b6b7b;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Progress Stepper */
+        .stepper {
+            background: var(--dark-card);
+            border-bottom: 1px solid var(--dark-border);
+            padding: 20px;
+        }
+        
+        .stepper-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .stepper-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .stepper-title span {
+            color: var(--primary-light);
+        }
+        
+        .stepper-percent {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary-light);
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: var(--dark-border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .steps-indicator {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+        
+        .steps-indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--dark-border);
+            z-index: 0;
+        }
+        
+        .step {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--dark-bg);
+            border: 2px solid var(--dark-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(17, 115, 212, 0.2);
+        }
+        
+        .step.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        
+        .step.completed::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 12px;
+        }
+        
+        .step.completed span {
+            display: none;
+        }
+        
+        /* Content */
+        .content {
+            flex: 1;
+            padding: 24px 20px;
+            overflow-y: auto;
+        }
+        
+        .step-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        
+        .step-title span {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #64b5f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .step-subtitle {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        
+        /* Form */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 14px;
+            font-size: 16px;
+            color: white;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(17, 115, 212, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        /* Upload */
+        .upload-area {
+            background: var(--dark-card);
+            border: 2px dashed var(--dark-border);
+            border-radius: 16px;
+            padding: 40px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(17, 115, 212, 0.05);
+        }
+        
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(17, 115, 212, 0.1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 24px;
+            color: var(--primary-light);
+        }
+        
+        .upload-text {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .upload-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        /* Info Box */
+        .info-box {
+            background: rgba(17, 115, 212, 0.1);
+            border: 1px solid rgba(17, 115, 212, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .info-box i {
+            color: var(--primary-light);
+            font-size: 20px;
+            margin-top: 2px;
+        }
+        
+        .info-box p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: var(--dark-card);
+            border-top: 1px solid var(--dark-border);
+            padding: 16px 20px 24px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 16px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-back {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--dark-border);
+        }
+        
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        
+        .btn-next {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(17, 115, 212, 0.4);
+        }
+        
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(17, 115, 212, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Progress Stepper -->
+        <div class="stepper">
+            <div class="stepper-header">
+                <div class="stepper-title">Step <span>2</span> of 10</div>
+                <div class="stepper-percent">20%</div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 20%"></div>
+            </div>
+            <div class="steps-indicator">
+                <div class="step completed"><span>1</span></div>
+                <div class="step active"><span>2</span></div>
+                <div class="step"><span>3</span></div>
+                <div class="step"><span>4</span></div>
+                <div class="step"><span>5</span></div>
+                <div class="step"><span>6</span></div>
+                <div class="step"><span>7</span></div>
+                <div class="step"><span>8</span></div>
+                <div class="step"><span>9</span></div>
+                <div class="step"><span>10</span></div>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <h1 class="step-title">Verify your<br><span>identity</span></h1>
+            <p class="step-subtitle">We need to verify who you are to keep RouteFlex safe.</p>
+            
+            <div class="info-box">
+                <i class="fas fa-shield-alt"></i>
+                <p>Your information is securely encrypted and only used for verification purposes.</p>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input type="text" class="form-input" placeholder="John">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" class="form-input" placeholder="Smith">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Date of Birth</label>
+                <input type="date" class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">National Insurance Number</label>
+                <input type="text" class="form-input" placeholder="AB 12 34 56 C">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Upload ID Document</label>
+                <div class="upload-area">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">Tap to upload</div>
+                    <div class="upload-hint">Passport or Driving Licence</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="btn btn-back" onclick="location.href='step-1-account.html'">
+                <i class="fas fa-arrow-left"></i>
+                Back
+            </button>
+            <button class="btn btn-next" onclick="location.href='step-8-vehicle.html'">
+                Continue
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</body>
+</html>
