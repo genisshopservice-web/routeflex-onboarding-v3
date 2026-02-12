@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteFlex - Final Agreement | Step 10 of 10</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1173D4; --primary-light: #1a8cff; --success: #10B981;
+            --dark-bg: #0a0a0f; --dark-card: #13131a; --dark-border: #2a2a3a;
+            --text-primary: #ffffff; --text-secondary: #a0a0b0; --text-muted: #6b6b7b;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--dark-bg); color: var(--text-primary); min-height: 100vh; }
+        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .stepper { background: var(--dark-card); border-bottom: 1px solid var(--dark-border); padding: 20px; }
+        .stepper-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .stepper-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        .stepper-title span { color: var(--primary-light); }
+        .stepper-percent { font-size: 20px; font-weight: 800; color: var(--success); }
+        .progress-bar { height: 6px; background: var(--dark-border); border-radius: 3px; overflow: hidden; margin-bottom: 16px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--success) 0%, #34d399 100%); border-radius: 3px; width: 100%; }
+        .steps-indicator { display: flex; justify-content: space-between; position: relative; }
+        .steps-indicator::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: var(--success); z-index: 0; }
+        .step { width: 28px; height: 28px; border-radius: 50%; background: var(--success); border: 2px solid var(--success); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; position: relative; z-index: 1; color: white; }
+        .step.active { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 0 4px rgba(17, 115, 212, 0.2); }
+        .step::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; font-size: 12px; }
+        .step span { display: none; }
+        
+        .content { flex: 1; padding: 24px 20px; overflow-y: auto; }
+        .step-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .step-title span { background: linear-gradient(135deg, var(--success) 0%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .step-subtitle { color: var(--text-secondary); font-size: 15px; margin-bottom: 32px; }
+        
+        .success-preview { background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%); border: 1px solid rgba(16,185,129,0.4); border-radius: 20px; padding: 24px; text-align: center; margin-bottom: 32px; }
+        .success-icon { width: 80px; height: 80px; background: linear-gradient(135deg, var(--success) 0%, #34d399 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 36px; color: white; box-shadow: 0 8px 32px rgba(16,185,129,0.3); }
+        .success-title { font-weight: 700; font-size: 20px; margin-bottom: 8px; }
+        .success-text { font-size: 14px; color: var(--text-secondary); }
+        
+        .checklist { margin-bottom: 32px; }
+        .checklist-title { font-weight: 600; font-size: 16px; margin-bottom: 16px; }
+        .checklist-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--dark-border); }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-icon { width: 32px; height: 32px; background: rgba(16,185,129,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--success); font-size: 14px; }
+        .checklist-text { flex: 1; font-size: 14px; }
+        
+        .declaration-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+        .declaration-item { display: flex; align-items: flex-start; gap: 12px; background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 12px; padding: 16px; }
+        .declaration-item input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--primary); }
+        .declaration-item label { font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
+        .declaration-item label strong { color: white; }
+        
+        .signature-area { background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+        .signature-label { font-weight: 600; font-size: 14px; margin-bottom: 12px; display: block; }
+        .signature-pad { background: white; border-radius: 8px; height: 120px; display: flex; align-items: center; justify-content: center; color: #999; font-style: italic; }
+        
+        .bottom-nav { background: var(--dark-card); border-top: 1px solid var(--dark-border); padding: 16px 20px 24px; display: flex; gap: 12px; }
+        .btn { flex: 1; padding: 16px 24px; border-radius: 14px; font-weight: 600; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; border: none; }
+        .btn-back { background: transparent; color: var(--text-secondary); border: 1px solid var(--dark-border); }
+        .btn-back:hover { background: rgba(255,255,255,0.05); color: white; }
+        .btn-submit { background: linear-gradient(135deg, var(--success) 0%, #34d399 100%); color: white; box-shadow: 0 4px 20px rgba(16,185,129,0.4); }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(16,185,129,0.5); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="stepper">
+            <div class="stepper-header">
+                <div class="stepper-title">Step <span>10</span> of 10</div>
+                <div class="stepper-percent">100%</div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <div class="steps-indicator">
+                <div class="step completed"><span>1</span></div>
+                <div class="step completed"><span>2</span></div>
+                <div class="step completed"><span>3</span></div>
+                <div class="step completed"><span>4</span></div>
+                <div class="step completed"><span>5</span></div>
+                <div class="step completed"><span>6</span></div>
+                <div class="step completed"><span>7</span></div>
+                <div class="step completed"><span>8</span></div>
+                <div class="step completed"><span>9</span></div>
+                <div class="step active"><span>10</span></div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <h1 class="step-title">Almost<br><span>There!</span></h1>
+            <p class="step-subtitle">Review and agree to the terms to complete your application.</p>
+            
+            <div class="success-preview">
+                <div class="success-icon"><i class="fas fa-check"></i></div>
+                <div class="success-title">Application Complete</div>
+                <div class="success-text">All 10 steps finished successfully!</div>
+            </div>
+            
+            <div class="checklist">
+                <div class="checklist-title">What you've completed:</div>
+                <div class="checklist-item">
+                    <div class="checklist-icon"><i class="fas fa-check"></i></div>
+                    <div class="checklist-text">Account & Contact Details</div>
+                </div>
+                <div class="checklist-item">
+                    <div class="checklist-icon"><i class="fas fa-check"></i></div>
+                    <div class="checklist-text">Identity Verification</div>
+                </div>
+                <div class="checklist-item">
+                    <div class="checklist-icon"><i class="fas fa-check"></i></div>
+                    <div class="checklist-text">Right to Work</div>
+                </div>
+                <div class="checklist-item">
+                    <div class="checklist-icon"><i class="fas fa-check"></i></div>
+                    <div class="checklist-text">Driving Licence Verified</div>
+                </div>
+                <div class="checklist-item">
+                    <div class="checklist-icon"><i class="fas fa-check"></i></div>
+                    <div class="checklist-text">Insurance & Vehicle</div>
+                </div>
+                <div class="checklist-item">
+                    <div class="checklist-icon"><i class="fas fa-check"></i></div>
+                    <div class="checklist-text">Bank Details Added</div>
+                </div>
+            </div>
+            
+            <div class="declaration-list">
+                <div class="declaration-item">
+                    <input type="checkbox" id="terms" checked>
+                    <label for="terms"><strong>I agree</strong> to the Driver Agreement and Platform Terms of Service.</label>
+                </div>
+                <div class="declaration-item">
+                    <input type="checkbox" id="data" checked>
+                    <label for="data"><strong>I consent</strong> to the processing of my personal data as described in the Privacy Policy.</label>
+                </div>
+                <div class="declaration-item">
+                    <input type="checkbox" id="self-employed" checked>
+                    <label for="self-employed"><strong>I confirm</strong> I am self-employed and responsible for my own tax and National Insurance.</label>
+                </div>
+            </div>
+            
+            <div class="signature-area">
+                <label class="signature-label">Digital Signature</label>
+                <div class="signature-pad">Sign here</div>
+            </div>
+        </div>
+        
+        <div class="bottom-nav">
+            <button class="btn btn-back" onclick="location.href='step-9-banking.html'">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button class="btn btn-submit" onclick="alert('Application submitted successfully!')">
+                Submit Application <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</body>
+</html>
