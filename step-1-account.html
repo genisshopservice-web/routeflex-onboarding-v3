@@ -241,6 +241,95 @@
             font-size: 18px;
         }
         
+        /* Verification Code Section */
+        .verify-section {
+            margin-top: 12px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .verify-section.active {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .verify-input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .code-inputs {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .code-digit {
+            width: 48px;
+            height: 56px;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            color: white;
+        }
+        
+        .code-digit:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(17, 115, 212, 0.1);
+        }
+        
+        .btn-send-code {
+            padding: 14px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .btn-send-code:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(17, 115, 212, 0.4);
+        }
+        
+        .btn-send-code:disabled {
+            background: var(--dark-border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .verify-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--success);
+        }
+        
+        .verify-status i {
+            font-size: 16px;
+        }
+        
+        .verify-status.pending {
+            color: var(--text-muted);
+        }
+        
         /* Info Box */
         .info-box {
             background: rgba(17, 115, 212, 0.1);
@@ -362,16 +451,52 @@
                     </select>
                     <div class="input-wrapper" style="flex: 1;">
                         <i class="input-icon fas fa-phone"></i>
-                        <input type="tel" class="form-input" placeholder="7123 456789">
+                        <input type="tel" class="form-input" id="phone-input" placeholder="7123 456789" oninput="checkPhoneInput()">
+                    </div>
+                    <button class="btn-send-code" id="send-phone-code" onclick="sendPhoneCode()" disabled>Send Code</button>
+                </div>
+                <div class="verify-section" id="phone-verify-section">
+                    <label class="form-label" style="font-size: 13px; margin-top: 12px;">Enter verification code sent to your phone</label>
+                    <div class="verify-input-group">
+                        <div class="code-inputs">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'phone')">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'phone')">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'phone')">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'phone')">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'phone')">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'phone')">
+                        </div>
+                    </div>
+                    <div class="verify-status pending" id="phone-status">
+                        <i class="fas fa-clock"></i> Waiting for code...
                     </div>
                 </div>
             </div>
             
             <div class="form-group">
                 <label class="form-label">Email Address</label>
-                <div class="input-wrapper">
-                    <i class="input-icon fas fa-envelope"></i>
-                    <input type="email" class="form-input" placeholder="you@example.com">
+                <div style="display: flex; gap: 12px;">
+                    <div class="input-wrapper" style="flex: 1;">
+                        <i class="input-icon fas fa-envelope"></i>
+                        <input type="email" class="form-input" id="email-input" placeholder="you@example.com" oninput="checkEmailInput()">
+                    </div>
+                    <button class="btn-send-code" id="send-email-code" onclick="sendEmailCode()" disabled>Send Code</button>
+                </div>
+                <div class="verify-section" id="email-verify-section">
+                    <label class="form-label" style="font-size: 13px; margin-top: 12px;">Enter verification code sent to your email</label>
+                    <div class="verify-input-group">
+                        <div class="code-inputs">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'email')">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'email')">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'email')">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'email')">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'email')">
+                            <input type="text" class="code-digit" maxlength="1" oninput="moveToNext(this, 'email')">
+                        </div>
+                    </div>
+                    <div class="verify-status pending" id="email-status">
+                        <i class="fas fa-clock"></i> Waiting for code...
+                    </div>
                 </div>
             </div>
             
@@ -397,5 +522,64 @@
             </button>
         </div>
     </div>
+    
+    <script>
+        // Phone verification
+        function checkPhoneInput() {
+            const phoneInput = document.getElementById('phone-input');
+            const sendBtn = document.getElementById('send-phone-code');
+            sendBtn.disabled = phoneInput.value.length < 10;
+        }
+        
+        function sendPhoneCode() {
+            const verifySection = document.getElementById('phone-verify-section');
+            const sendBtn = document.getElementById('send-phone-code');
+            verifySection.classList.add('active');
+            sendBtn.textContent = 'Resend';
+            sendBtn.disabled = true;
+            setTimeout(() => sendBtn.disabled = false, 30000);
+        }
+        
+        // Email verification
+        function checkEmailInput() {
+            const emailInput = document.getElementById('email-input');
+            const sendBtn = document.getElementById('send-email-code');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            sendBtn.disabled = !emailRegex.test(emailInput.value);
+        }
+        
+        function sendEmailCode() {
+            const verifySection = document.getElementById('email-verify-section');
+            const sendBtn = document.getElementById('send-email-code');
+            verifySection.classList.add('active');
+            sendBtn.textContent = 'Resend';
+            sendBtn.disabled = true;
+            setTimeout(() => sendBtn.disabled = false, 30000);
+        }
+        
+        // Code input handling
+        function moveToNext(input, type) {
+            if (input.value.length === 1) {
+                const next = input.nextElementSibling;
+                if (next) next.focus();
+                checkCodeComplete(type);
+            }
+        }
+        
+        function checkCodeComplete(type) {
+            const section = document.getElementById(type + '-verify-section');
+            const digits = section.querySelectorAll('.code-digit');
+            const status = document.getElementById(type + '-status');
+            
+            let complete = true;
+            digits.forEach(d => { if (!d.value) complete = false; });
+            
+            if (complete) {
+                status.innerHTML = '<i class="fas fa-check-circle"></i> Verified successfully!';
+                status.classList.remove('pending');
+                status.style.color = 'var(--success)';
+            }
+        }
+    </script>
 </body>
 </html>
