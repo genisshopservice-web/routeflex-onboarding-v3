@@ -58,6 +58,10 @@
         input:checked + .toggle-slider { background: var(--primary); }
         input:checked + .toggle-slider:before { transform: translateX(24px); }
         
+        .vat-field { display: none; margin-top: 16px; padding: 16px; background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 14px; }
+        .vat-field.active { display: block; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .declaration-box { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 20px; }
         .checkbox-wrapper { display: flex; align-items: flex-start; gap: 12px; }
         .checkbox-wrapper input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--primary); }
@@ -120,9 +124,15 @@
                     <p>Required if turnover exceeds £85,000</p>
                 </div>
                 <label class="toggle-switch">
-                    <input type="checkbox" id="vat-toggle">
+                    <input type="checkbox" id="vat-toggle" onchange="toggleVatField()">
                     <span class="toggle-slider"></span>
                 </label>
+            </div>
+            
+            <div class="vat-field" id="vat-field">
+                <label class="form-label">VAT Registration Number</label>
+                <input type="text" class="form-input" placeholder="GB123456789">
+                <p class="form-hint">Enter your 9 or 11 digit VAT number starting with GB</p>
             </div>
             
             <div class="declaration-box">
@@ -150,5 +160,13 @@
             </button>
         </div>
     </div>
+    
+    <script>
+        function toggleVatField() {
+            const toggle = document.getElementById('vat-toggle');
+            const vatField = document.getElementById('vat-field');
+            vatField.classList.toggle('active', toggle.checked);
+        }
+    </script>
 </body>
 </html>
