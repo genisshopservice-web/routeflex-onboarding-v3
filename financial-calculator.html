@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteFlex - Financial Breakdown</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --border-color: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --accent-rose: #f43f5e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+        
+        .input-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .input-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 14px 14px 44px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.2s;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+        
+        .toggle-label h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .toggle-label p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--border-color);
+            border-radius: 28px;
+            transition: 0.3s;
+        }
+        
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        
+        input:checked + .toggle-slider {
+            background: var(--accent-emerald);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        
+        .card-icon.blue { background: rgba(59, 130, 246, 0.15); }
+        .card-icon.emerald { background: rgba(16, 185, 129, 0.15); }
+        .card-icon.amber { background: rgba(245, 158, 11, 0.15); }
+        .card-icon.purple { background: rgba(139, 92, 246, 0.15); }
+        .card-icon.rose { background: rgba(244, 63, 94, 0.15); }
+        
+        .card-icon.blue { color: var(--accent-blue); }
+        .card-icon.emerald { color: var(--accent-emerald); }
+        .card-icon.amber { color: var(--accent-amber); }
+        .card-icon.purple { color: var(--accent-purple); }
+        .card-icon.rose { color: var(--accent-rose); }
+        
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .currency-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .currency-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .currency-row.highlight {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .currency-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .currency-row.highlight .currency-label {
+            color: var(--accent-emerald);
+        }
+        
+        .currency-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .currency-row.highlight .currency-value {
+            color: var(--accent-emerald);
+        }
+        
+        .currency-subtext {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        .summary-section {
+            margin-top: 32px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        
+        .summary-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: 12px;
+        }
+        
+        .summary-item-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .summary-item-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+        
+        .summary-item-value.positive {
+            color: var(--accent-emerald);
+        }
+        
+        .summary-item-value.negative {
+            color: var(--accent-rose);
+        }
+        
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Financial Breakdown</h1>
+            <p>RouteFlex payment flow calculator</p>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Shipper Base Rate</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">💷</span>
+                        <input type="number" id="shipperBase" value="300" min="0" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Margin Percentage</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📊</span>
+                        <input type="number" id="marginPercent" value="33.33" min="0" max="100" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>VAT Rate</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📈</span>
+                        <input type="number" id="vatRate" value="20" min="0" max="100" step="0.01">
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <div class="toggle-group">
+                    <div class="toggle-label">
+                        <h4>Driver VAT Registered?</h4>
+                        <p>Toggle if the driver is VAT registered (affects VAT payment flow)</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="isDriverVatRegistered">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cards-grid">
+            <!-- Shipper Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon blue">🏢</div>
+                    <h3 class="card-title" style="color: var(--accent-blue);">From Shipper</h3>
+                </div>
+                <div class="card-body">
+                    <div class="currency-row">
+                        <span class="currency-label">Base Rate</span>
+                        <span class="currency-value" id="shipperBaseDisplay">£300.00</span>
+                    </div>
+                    <div class="currency-row">
+                        <span class="currency-label">VAT (20%)</span>
+                        <span class="currency-value" id="shipperVat">£60.00</span>
+                    </div>
+                    <div class="currency-row highlight">
+                        <span class="currency-label">Total Collected</span>
+                        <span class="currency-value" id="totalFromShipper">£360.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin Margin Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon purple">📋</div>
+                    <h3 class="card-title" style="color: var(--accent-purple);">Admin Margin</h3>
+                </div>
+                <div class="card-body">
+                    <div class="currency-row">
+                        <span class="currency-label">Margin %</span>
+                        <span class="currency-value" id="marginPercentDisplay">33.33%</span>
+                    </div>
+                    <div class="currency-row highlight">
+                        <span class="currency-label">Admin Fee</span>
+                        <span class="currency-value" id="adminMargin">£100.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Driver Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon emerald">🚚</div>
+                    <h3 class="card-title" style="color: var(--accent-emerald);">To Driver</h3>
+                </div>
+                <div class="card-body">
+                    <div class="currency-row">
+                        <span class="currency-label">Driver Base</span>
+                        <span class="currency-value" id="driverBase">£200.00</span>
+                    </div>
+                    <div class="currency-row" id="driverVatRow">
+                        <span class="currency-label">VAT Collected <span id="vatStatus">(Not Registered)</span></span>
+                        <span class="currency-value" id="driverVat">£0.00</span>
+                    </div>
+                    <div class="currency-row highlight">
+                        <span class="currency-label">Total to Driver</span>
+                        <span class="currency-value" id="totalToDriver">£200.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- HMRC Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon rose">🏛️</div>
+                    <h3 class="card-title" style="color: var(--accent-rose);">HMRC / VAT</h3>
+                </div>
+                <div class="card-body">
+                    <div class="currency-row">
+                        <span class="currency-label">VAT from Shipper</span>
+                        <span class="currency-value" id="vatFromShipper">£60.00</span>
+                    </div>
+                    <div class="currency-row">
+                        <span class="currency-label">VAT to Driver</span>
+                        <span class="currency-value" id="vatToDriver">£0.00</span>
+                    </div>
+                    <div class="currency-row highlight">
+                        <span class="currency-label">Net VAT to HMRC</span>
+                        <span class="currency-value" id="netVatToHmrc">£60.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="summary-section">
+            <div class="summary-title">
+                <span>📊</span>
+                Summary
+            </div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-item-label">Shipper Pays</div>
+                    <div class="summary-item-value" id="summaryShipper">£360.00</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-label">RouteFlex Margin</div>
+                    <div class="summary-item-value positive" id="summaryMargin">£100.00</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-label">Driver Receives</div>
+                    <div class="summary-item-value" id="summaryDriver">£200.00</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-item-label">HMRC VAT</div>
+                    <div class="summary-item-value" id="summaryHmrc">£60.00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function calculate() {
+            const shipperBase = parseFloat(document.getElementById('shipperBase').value) || 0;
+            const marginPercent = parseFloat(document.getElementById('marginPercent').value) || 0;
+            const vatRate = parseFloat(document.getElementById('vatRate').value) || 0;
+            const isDriverVatRegistered = document.getElementById('isDriverVatRegistered').checked;
+            
+            const vatMultiplier = vatRate / 100;
+            
+            // Calculations
+            const shipperVat = shipperBase * vatMultiplier;
+            const totalFromShipper = shipperBase + shipperVat;
+            const adminMargin = shipperBase * (marginPercent / 100);
+            const driverBase = shipperBase - adminMargin;
+            const driverVat = isDriverVatRegistered ? (driverBase * vatMultiplier) : 0;
+            const totalToDriver = driverBase + driverVat;
+            const netVatToHmrc = shipperVat - driverVat;
+            
+            // Update displays
+            document.getElementById('shipperBaseDisplay').textContent = `£${shipperBase.toFixed(2)}`;
+            document.getElementById('shipperVat').textContent = `£${shipperVat.toFixed(2)}`;
+            document.getElementById('totalFromShipper').textContent = `£${totalFromShipper.toFixed(2)}`;
+            
+            document.getElementById('marginPercentDisplay').textContent = `${marginPercent.toFixed(2)}%`;
+            document.getElementById('adminMargin').textContent = `£${adminMargin.toFixed(2)}`;
+            
+            document.getElementById('driverBase').textContent = `£${driverBase.toFixed(2)}`;
+            document.getElementById('vatStatus').textContent = isDriverVatRegistered ? '(Registered)' : '(Not Registered)';
+            document.getElementById('driverVat').textContent = `£${driverVat.toFixed(2)}`;
+            document.getElementById('totalToDriver').textContent = `£${totalToDriver.toFixed(2)}`;
+            
+            document.getElementById('vatFromShipper').textContent = `£${shipperVat.toFixed(2)}`;
+            document.getElementById('vatToDriver').textContent = `£${driverVat.toFixed(2)}`;
+            document.getElementById('netVatToHmrc').textContent = `£${netVatToHmrc.toFixed(2)}`;
+            
+            // Summary
+            document.getElementById('summaryShipper').textContent = `£${totalFromShipper.toFixed(2)}`;
+            document.getElementById('summaryMargin').textContent = `£${adminMargin.toFixed(2)}`;
+            document.getElementById('summaryDriver').textContent = `£${totalToDriver.toFixed(2)}`;
+            document.getElementById('summaryHmrc').textContent = `£${netVatToHmrc.toFixed(2)}`;
+            
+            // Visual feedback for driver VAT row
+            const driverVatRow = document.getElementById('driverVatRow');
+            if (isDriverVatRegistered) {
+                driverVatRow.classList.add('highlight');
+            } else {
+                driverVatRow.classList.remove('highlight');
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('shipperBase').addEventListener('input', calculate);
+        document.getElementById('marginPercent').addEventListener('input', calculate);
+        document.getElementById('vatRate').addEventListener('input', calculate);
+        document.getElementById('isDriverVatRegistered').addEventListener('change', calculate);
+        
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
