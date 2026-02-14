@@ -763,37 +763,6 @@
                 </div>
                 <p>Visualizing VAT Collection & Driver Payouts (Dark Mode)</p>
             </div>
-            
-            <div class="controls">
-                <div class="control-group">
-                    <label>Driver VAT Status</label>
-                    <button class="vat-toggle inactive" id="vatToggle" onclick="toggleVatStatus()">
-                        <svg id="toggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="8" x2="12" y2="12"/>
-                            <line x1="12" y1="16" x2="12.01" y2="16"/>
-                        </svg>
-                        <span id="toggleText">NON-VAT REGISTERED</span>
-                    </button>
-                </div>
-                
-                <div class="divider"></div>
-                
-                <div class="control-group">
-                    <label>RouteFlex Margin %</label>
-                    <div class="margin-control">
-                        <div class="margin-badge">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="19" y1="5" x2="5" y2="19"/>
-                                <circle cx="6.5" cy="6.5" r="2.5"/>
-                                <circle cx="17.5" cy="17.5" r="2.5"/>
-                            </svg>
-                            <span id="marginValue">33.3%</span>
-                        </div>
-                        <input type="range" id="marginSlider" min="5" max="60" step="0.5" value="33.33">
-                    </div>
-                </div>
-            </div>
         </div>
         
         <!-- Workflow Grid -->
@@ -804,10 +773,39 @@
                     <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
             </div>
-            <div class="arrow-connector second">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
+            <!-- CONTROLS BETWEEN ROUTEFLEX AND DRIVER -->
+            <div style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%); border: 2px solid var(--border-color); border-radius: 16px; padding: 24px; margin: 16px 0; text-align: center;">
+                <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">⚙️ RouteFlex Settings</div>
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; align-items: flex-end;">
+                    <div class="control-group">
+                        <label>Driver VAT Status</label>
+                        <button class="vat-toggle inactive" id="vatToggle" onclick="toggleVatStatus()">
+                            <svg id="toggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            <span id="toggleText">NON-VAT REGISTERED</span>
+                        </button>
+                    </div>
+                    
+                    <div style="width: 1px; height: 40px; background: var(--border-color);"></div>
+                    
+                    <div class="control-group">
+                        <label>RouteFlex Margin %</label>
+                        <div class="margin-control">
+                            <div class="margin-badge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="19" y1="5" x2="5" y2="19"/>
+                                    <circle cx="6.5" cy="6.5" r="2.5"/>
+                                    <circle cx="17.5" cy="17.5" r="2.5"/>
+                                </svg>
+                                <span id="marginValue">33.3%</span>
+                            </div>
+                            <input type="range" id="marginSlider" min="5" max="60" step="0.5" value="33.33">
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- STEP 1: SHIPPER -->
