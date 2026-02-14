@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteFlex - Payment Workflow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #020617;
+            --bg-card: #0f172a;
+            --bg-input: #1e293b;
+            --border-color: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-indigo: #6366f1;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-slate: #64748b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 32px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        
+        @media (min-width: 768px) {
+            .header {
+                flex-direction: row;
+                align-items: flex-end;
+                justify-content: space-between;
+            }
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        
+        .header-title svg {
+            width: 20px;
+            height: 20px;
+            color: var(--accent-indigo);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 900;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .controls {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .vat-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .vat-toggle.inactive {
+            background: var(--bg-input);
+            color: var(--text-muted);
+        }
+        
+        .vat-toggle.inactive:hover {
+            background: #334155;
+        }
+        
+        .vat-toggle.active {
+            background: var(--accent-indigo);
+            color: white;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .vat-toggle svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .divider {
+            width: 1px;
+            height: 40px;
+            background: var(--border-color);
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .divider {
+                display: block;
+            }
+        }
+        
+        .margin-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .margin-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        
+        .margin-badge svg {
+            width: 14px;
+            height: 14px;
+            color: var(--text-muted);
+        }
+        
+        .margin-badge span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        input[type="range"] {
+            width: 100px;
+            height: 8px;
+            background: var(--bg-input);
+            border-radius: 4px;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-indigo);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        /* Cards Grid */
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            position: relative;
+        }
+        
+        @media (min-width: 768px) {
+            .workflow-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--accent-slate);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .card.indigo { border-top-color: var(--accent-indigo); }
+        .card.emerald { border-top-color: var(--accent-emerald); }
+        .card.amber { border-top-color: var(--accent-amber); }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-icon.slate { background: rgba(100, 116, 139, 0.15); color: var(--accent-slate); }
+        .card-icon.indigo { background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo); }
+        .card-icon.emerald { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+        .card-icon.amber { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+        
+        .card-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .card-title.slate { color: var(--accent-slate); }
+        .card-title.indigo { color: var(--accent-indigo); }
+        .card-title.emerald { color: var(--accent-emerald); }
+        .card-title.amber { color: var(--accent-amber); }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .invoice-box {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .invoice-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .currency-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 10px 0;
+        }
+        
+        .currency-row:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .currency-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .currency-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .currency-value.indigo { color: var(--accent-indigo); }
+        .currency-value.emerald { color: var(--accent-emerald); }
+        .currency-value.amber { color: var(--accent-amber); }
+        .currency-value.white { color: white; font-size: 18px; }
+        
+        .vat-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+        }
+        
+        .vat-box .currency-label {
+            font-size: 12px;
+        }
+        
+        .vat-box .currency-value {
+            color: var(--accent-indigo);
+        }
+        
+        .divider-line {
+            height: 1px;
+            background: var(--border-color);
+            margin: 12px 0;
+        }
+        
+        .card-note {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 0 4px;
+            line-height: 1.5;
+        }
+        
+        .payout-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .payout-box .invoice-label {
+            color: var(--accent-emerald);
+        }
+        
+        .base-row {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .driver-vat-row {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .driver-vat-row.disabled {
+            opacity: 0.5;
+        }
+        
+        .total-row {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: 12px;
+        }
+        
+        .total-row .currency-value {
+            color: var(--accent-emerald);
+            font-size: 20px;
+        }
+        
+        .vat-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+        
+        .vat-badge.registered {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-emerald);
+        }
+        
+        .vat-badge.not-registered {
+            background: rgba(100, 116, 139, 0.2);
+            color: var(--text-muted);
+        }
+        
+        .summary-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .summary-box .currency-label {
+            font-size: 12px;
+            color: var(--accent-indigo);
+        }
+        
+        .summary-box .currency-value {
+            color: var(--accent-indigo);
+            font-size: 18px;
+        }
+        
+        /* Arrow connector */
+        .arrow-connector {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .arrow-connector {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 40px;
+                color: var(--text-muted);
+            }
+            
+            .arrow-connector.first {
+                left: 33.33%;
+                margin-left: -20px;
+            }
+            
+            .arrow-connector.second {
+                left: 66.66%;
+                margin-left: -20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <div class="header-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                    </svg>
+                    <h1>RouteFlex Payment Workflow</h1>
+                </div>
+                <p>Visualizing VAT Collection & Driver Payouts (Dark Mode)</p>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label>Driver VAT Status</label>
+                    <button class="vat-toggle inactive" id="vatToggle" onclick="toggleVatStatus()">
+                        <svg id="toggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <span id="toggleText">NON-VAT REGISTERED</span>
+                    </button>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="control-group">
+                    <label>RouteFlex Margin %</label>
+                    <div class="margin-control">
+                        <div class="margin-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="19" y1="5" x2="5" y2="19"/>
+                                <circle cx="6.5" cy="6.5" r="2.5"/>
+                                <circle cx="17.5" cy="17.5" r="2.5"/>
+                            </svg>
+                            <span id="marginValue">33.3%</span>
+                        </div>
+                        <input type="range" id="marginSlider" min="5" max="60" step="0.5" value="33.33">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Workflow Grid -->
+        <div class="workflow-grid">
+            <!-- Arrow Connectors -->
+            <div class="arrow-connector first">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </div>
+            <div class="arrow-connector second">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </div>
+            
+            <!-- STEP 1: SHIPPER -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon slate">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+                            <path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/>
+                            <path d="M12 6v6"/>
+                            <path d="M9 9h6"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title slate">Customer (Shipper)</h3>
+                </div>
+                <div class="card-body">
+                    <div class="invoice-box">
+                        <div class="invoice-label">Invoice from RouteFlex</div>
+                        
+                        <div class="currency-row">
+                            <span class="currency-label">Service Base Price</span>
+                            <span class="currency-value" id="shipperBaseDisplay">£300.00</span>
+                        </div>
+                        
+                        <div class="vat-box">
+                            <div class="currency-row">
+                                <span class="currency-label">VAT Collected by RouteFlex</span>
+                                <span class="currency-value indigo" id="shipperVat">£60.00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="divider-line"></div>
+                        
+                        <div class="currency-row">
+                            <span class="currency-label">Total Payment Received</span>
+                            <span class="currency-value white" id="totalFromShipper">£360.00</span>
+                        </div>
+                    </div>
+                    
+                    <p class="card-note">
+                        This £<span id="vatNote">60.00</span> is your 'Output VAT'—it belongs to HMRC unless you have 'Input VAT' from driver payouts to offset it.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- STEP 2: ROUTEFLEX ADMIN -->
+            <div class="card indigo">
+                <div class="card-header">
+                    <div class="card-icon indigo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18"/>
+                            <path d="m19 9-5 5-4-4-3 3"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title indigo">RouteFlex (Admin)</h3>
+                </div>
+                <div class="card-body">
+                    <div class="invoice-box">
+                        <div class="invoice-label">Revenue Split</div>
+                        
+                        <div class="currency-row">
+                            <span class="currency-label">Gross Revenue</span>
+                            <span class="currency-value" id="grossRevenue">£360.00</span>
+                        </div>
+                        
+                        <div class="vat-box">
+                            <div class="currency-row">
+                                <span class="currency-label">Output VAT (HMRC Liability)</span>
+                                <span class="currency-value indigo" id="outputVat">£60.00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="divider-line"></div>
+                        
+                        <div class="currency-row">
+                            <span class="currency-label">Net Revenue</span>
+                            <span class="currency-value" id="netRevenue">£300.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-box">
+                        <div class="currency-row">
+                            <span class="currency-label">RouteFlex Margin</span>
+                            <span class="currency-value" id="adminMargin">£100.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- STEP 3: DRIVER -->
+            <div class="card emerald">
+                <div class="card-header">
+                    <div class="card-icon emerald">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 17h4V5H2v12h3"/>
+                            <path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/>
+                            <path d="M14 17h1"/>
+                            <circle cx="7.5" cy="17.5" r="2.5"/>
+                            <circle cx="17.5" cy="17.5" r="2.5"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title emerald">Driver</h3>
+                </div>
+                <div class="card-body">
+                    <div class="payout-box">
+                        <div class="invoice-label">Driver Payout</div>
+                        
+                        <div class="base-row">
+                            <div class="currency-row">
+                                <span class="currency-label">Base Payout (after margin)</span>
+                                <span class="currency-value" id="driverBase">£200.00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="driver-vat-row" id="driverVatRow">
+                            <div class="currency-row">
+                                <span class="currency-label">
+                                    VAT on Payout
+                                    <span class="vat-badge not-registered" id="vatBadge">NOT REG'D</span>
+                                </span>
+                                <span class="currency-value amber" id="driverVat">£0.00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="total-row">
+                            <div class="currency-row">
+                                <span class="currency-label">Total to Driver</span>
+                                <span class="currency-value" id="totalToDriver">£200.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="card-note" id="driverNote">
+                        Driver is NOT VAT registered. RouteFlex pays £200 gross, claims no Input VAT.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let isDriverVatRegistered = false;
+        let marginPercent = 33.33;
+        let shipperBase = 300;
+        let vatRate = 20;
+        
+        function toggleVatStatus() {
+            isDriverVatRegistered = !isDriverVatRegistered;
+            const btn = document.getElementById('vatToggle');
+            const icon = document.getElementById('toggleIcon');
+            const text = document.getElementById('toggleText');
+            const vatBadge = document.getElementById('vatBadge');
+            const driverVatRow = document.getElementById('driverVatRow');
+            const driverNote = document.getElementById('driverNote');
+            
+            if (isDriverVatRegistered) {
+                btn.classList.remove('inactive');
+                btn.classList.add('active');
+                icon.innerHTML = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>';
+                text.textContent = 'VAT REGISTERED';
+                vatBadge.textContent = 'VAT REG\'D';
+                vatBadge.classList.remove('not-registered');
+                vatBadge.classList.add('registered');
+                driverVatRow.classList.remove('disabled');
+                driverNote.textContent = 'Driver IS VAT registered. RouteFlex pays £200 + £40 VAT. Claims £40 Input VAT.';
+            } else {
+                btn.classList.remove('active');
+                btn.classList.add('inactive');
+                icon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+                text.textContent = 'NON-VAT REGISTERED';
+                vatBadge.textContent = 'NOT REG\'D';
+                vatBadge.classList.remove('registered');
+                vatBadge.classList.add('not-registered');
+                driverVatRow.classList.add('disabled');
+                driverNote.textContent = 'Driver is NOT VAT registered. RouteFlex pays £200 gross, claims no Input VAT.';
+            }
+            
+            calculate();
+        }
+        
+        function calculate() {
+            const vatMultiplier = vatRate / 100;
+            
+            // Shipper calculations
+            const shipperVat = shipperBase * vatMultiplier;
+            const totalFromShipper = shipperBase + shipperVat;
+            
+            // Admin calculations
+            const adminMargin = shipperBase * (marginPercent / 100);
+            const netRevenue = shipperBase;
+            
+            // Driver calculations
+            const driverBase = shipperBase - adminMargin;
+            const driverVat = isDriverVatRegistered ? (driverBase * vatMultiplier) : 0;
+            const totalToDriver = driverBase + driverVat;
+            
+            // Update displays
+            document.getElementById('shipperBaseDisplay').textContent = `£${shipperBase.toFixed(2)}`;
+            document.getElementById('shipperVat').textContent = `£${shipperVat.toFixed(2)}`;
+            document.getElementById('totalFromShipper').textContent = `£${totalFromShipper.toFixed(2)}`;
+            document.getElementById('vatNote').textContent = shipperVat.toFixed(2);
+            
+            document.getElementById('grossRevenue').textContent = `£${totalFromShipper.toFixed(2)}`;
+            document.getElementById('outputVat').textContent = `£${shipperVat.toFixed(2)}`;
+            document.getElementById('netRevenue').textContent = `£${netRevenue.toFixed(2)}`;
+            document.getElementById('adminMargin').textContent = `£${adminMargin.toFixed(2)}`;
+            
+            document.getElementById('driverBase').textContent = `£${driverBase.toFixed(2)}`;
+            document.getElementById('driverVat').textContent = `£${driverVat.toFixed(2)}`;
+            document.getElementById('totalToDriver').textContent = `£${totalToDriver.toFixed(2)}`;
+        }
+        
+        // Event listeners
+        document.getElementById('marginSlider').addEventListener('input', function() {
+            marginPercent = parseFloat(this.value);
+            document.getElementById('marginValue').textContent = marginPercent.toFixed(1) + '%';
+            calculate();
+        });
+        
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
