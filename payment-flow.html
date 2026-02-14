@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteFlex - Payment Flow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: #111118;
+            --bg-hover: #1a1a24;
+            --border-color: #2a2a35;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606070;
+            --accent-blue: #1173D4;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        /* Header */
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+        .header p { color: var(--text-secondary); font-size: 16px; }
+        
+        /* Controls */
+        .controls {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: flex-end;
+        }
+        
+        .control-group { flex: 1; min-width: 200px; }
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        
+        .toggle-btn {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid var(--border-color);
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+        }
+        
+        .toggle-btn:hover { border-color: var(--text-muted); }
+        
+        .toggle-btn.active {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: white;
+        }
+        
+        /* Money Flow */
+        .flow-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+        }
+        
+        .flow-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        /* Party Box */
+        .party {
+            background: var(--bg-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+        
+        .party-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .party-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        
+        .party-icon.customer { background: rgba(100, 100, 110, 0.2); }
+        .party-icon.routeflex { background: rgba(17, 115, 212, 0.2); }
+        .party-icon.driver { background: rgba(16, 185, 129, 0.2); }
+        .party-icon.hmrc { background: rgba(239, 68, 68, 0.2); }
+        
+        .party-name { font-size: 18px; font-weight: 700; }
+        .party-role { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        
+        /* Money Lines */
+        .money-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .money-line:last-child { border-bottom: none; }
+        
+        .money-label { font-size: 14px; color: var(--text-secondary); }
+        .money-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .money-value.total { color: white; font-size: 22px; }
+        .money-value.vat { color: var(--accent-blue); }
+        .money-value.fee { color: var(--accent-green); }
+        .money-value.negative { color: var(--accent-red); }
+        
+        /* Arrow */
+        .arrow-down {
+            text-align: center;
+            padding: 12px;
+            color: var(--text-muted);
+            font-size: 24px;
+        }
+        
+        /* Summary Section */
+        .summary-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px solid var(--border-color);
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+        
+        .summary-item {
+            background: var(--bg-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .summary-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .summary-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        
+        .summary-value.blue { color: var(--accent-blue); }
+        .summary-value.green { color: var(--accent-green); }
+        .summary-value.white { color: white; }
+        
+        /* VAT Explanation */
+        .vat-explain {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(17, 115, 212, 0.1);
+            border: 1px solid rgba(17, 115, 212, 0.3);
+            border-radius: 12px;
+        }
+        
+        .vat-explain h3 {
+            font-size: 14px;
+            color: var(--accent-blue);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .vat-explain p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .vat-explain strong { color: white; }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header h1 { font-size: 24px; }
+            .controls { flex-direction: column; }
+            .control-group { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 RouteFlex Payment Flow</h1>
+            <p>Simple breakdown of where the money goes</p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>Job Value (excl. VAT)</label>
+                <input type="number" id="jobValue" value="300" min="0" step="10">
+            </div>
+            
+            <div class="control-group">
+                <label>RouteFlex Commission %</label>
+                <input type="number" id="commission" value="33.33" min="0" max="100" step="0.01">
+            </div>
+            
+            <div class="control-group">
+                <label>Driver VAT Status</label>
+                <button class="toggle-btn" id="vatToggle" onclick="toggleVat()">
+                    🔴 Not VAT Registered
+                </button>
+            </div>
+        </div>
+        
+        <div class="flow-container">
+            <div class="flow-title">Money Flow Breakdown</div>
+            
+            <!-- CUSTOMER -->
+            <div class="party">
+                <div class="party-header">
+                    <div class="party-icon customer">🏢</div>
+                    <div>
+                        <div class="party-name">Customer</div>
+                        <div class="party-role">Pays for delivery service</div>
+                    </div>
+                </div>
+                <div class="money-line">
+                    <span class="money-label">Service Cost</span>
+                    <span class="money-value" id="customerBase">£300.00</span>
+                </div>
+                <div class="money-line">
+                    <span class="money-label">+ VAT (20%)</span>
+                    <span class="money-value vat" id="customerVat">£60.00</span>
+                </div>
+                <div class="money-line">
+                    <span class="money-label"><strong>Total Paid</strong></span>
+                    <span class="money-value total" id="customerTotal">£360.00</span>
+                </div>
+            </div>
+            
+            <div class="arrow-down">⬇️</div>
+            
+            <!-- ROUTEFLEX -->
+            <div class="party">
+                <div class="party-header">
+                    <div class="party-icon routeflex">⚡</div>
+                    <div>
+                        <div class="party-name">RouteFlex</div>
+                        <div class="party-role">Platform takes commission</div>
+                    </div>
+                </div>
+                <div class="money-line">
+                    <span class="money-label">Receives from Customer</span>
+                    <span class="money-value" id="routeflexReceives">£360.00</span>
+                </div>
+                <div class="money-line">
+                    <span class="money-label">Keeps as Commission</span>
+                    <span class="money-value fee" id="routeflexCommission">£100.00</span>
+                </div>
+                <div class="money-line">
+                    <span class="money-label">Pays to Driver</span>
+                    <span class="money-value negative" id="routeflexPaysDriver">-£200.00</span>
+                </div>
+                <div class="money-line" id="vatToDriverLine">
+                    <span class="money-label">+ VAT to Driver</span>
+                    <span class="money-value vat" id="vatToDriver">£0.00</span>
+                </div>
+                <div class="money-line" style="border-top: 2px solid var(--border-color); margin-top: 8px; padding-top: 16px;">
+                    <span class="money-label"><strong>RouteFlex Net Profit</strong></span>
+                    <span class="money-value fee" id="routeflexNet">£100.00</span>
+                </div>
+            </div>
+            
+            <div class="arrow-down">⬇️</div>
+            
+            <!-- DRIVER -->
+            <div class="party">
+                <div class="party-header">
+                    <div class="party-icon driver">🚚</div>
+                    <div>
+                        <div class="party-name">Driver</div>
+                        <div class="party-role" id="driverRole">Gets paid for delivery</div>
+                    </div>
+                </div>
+                <div class="money-line">
+                    <span class="money-label">Base Payment</span>
+                    <span class="money-value" id="driverBase">£200.00</span>
+                </div>
+                <div class="money-line" id="driverVatLine">
+                    <span class="money-label">+ VAT Charged</span>
+                    <span class="money-value vat" id="driverVat">£0.00</span>
+                </div>
+                <div class="money-line">
+                    <span class="money-label"><strong>Total to Driver</strong></span>
+                    <span class="money-value total" id="driverTotal">£200.00</span>
+                </div>
+            </div>
+            
+            <!-- HMRC -->
+            <div class="party" style="margin-top: 24px; background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2);">
+                <div class="party-header">
+                    <div class="party-icon hmrc">🏛️</div>
+                    <div>
+                        <div class="party-name">HMRC (Tax)</div>
+                        <div class="party-role">Receives VAT</div>
+                    </div>
+                </div>
+                <div class="money-line">
+                    <span class="money-label">VAT from Customer</span>
+                    <span class="money-value" id="hmrcFromCustomer">£60.00</span>
+                </div>
+                <div class="money-line" id="hmrcCreditLine">
+                    <span class="money-label">- VAT Credit (from Driver)</span>
+                    <span class="money-value negative" id="hmrcCredit">-£0.00</span>
+                </div>
+                <div class="money-line" style="border-top: 2px solid var(--border-color); margin-top: 8px; padding-top: 16px;">
+                    <span class="money-label"><strong>Net VAT to HMRC</strong></span>
+                    <span class="money-value total" id="hmrcTotal">£60.00</span>
+                </div>
+            </div>
+            
+            <!-- SUMMARY -->
+            <div class="summary-section">
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-label">Customer Pays</div>
+                        <div class="summary-value white" id="sumCustomer">£360</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">RouteFlex Keeps</div>
+                        <div class="summary-value green" id="sumRouteflex">£100</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Driver Gets</div>
+                        <div class="summary-value blue" id="sumDriver">£200</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">HMRC Gets</div>
+                        <div class="summary-value white" id="sumHmrc">£60</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- VAT EXPLANATION -->
+            <div class="vat-explain">
+                <h3>📊 How VAT Works</h3>
+                <p id="vatExplainText">
+                    The customer pays <strong>£60 VAT</strong> on their £300 job. <br><br>
+                    Since the driver is <strong>NOT VAT registered</strong>, they cannot charge VAT. RouteFlex keeps the full £60 and pays it all to HMRC. RouteFlex has no VAT to reclaim.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let isVatRegistered = false;
+        
+        function toggleVat() {
+            isVatRegistered = !isVatRegistered;
+            const btn = document.getElementById('vatToggle');
+            
+            if (isVatRegistered) {
+                btn.classList.add('active');
+                btn.innerHTML = '🟢 VAT Registered';
+                document.getElementById('driverRole').textContent = 'VAT registered - charges VAT';
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '🔴 Not VAT Registered';
+                document.getElementById('driverRole').textContent = 'Gets paid for delivery';
+            }
+            
+            calculate();
+        }
+        
+        function calculate() {
+            const jobValue = parseFloat(document.getElementById('jobValue').value) || 0;
+            const commissionPercent = parseFloat(document.getElementById('commission').value) || 0;
+            const vatRate = 0.20;
+            
+            // Customer calculations
+            const customerVat = jobValue * vatRate;
+            const customerTotal = jobValue + customerVat;
+            
+            // RouteFlex calculations
+            const commissionAmount = jobValue * (commissionPercent / 100);
+            const driverBase = jobValue - commissionAmount;
+            const driverVatAmount = isVatRegistered ? (driverBase * vatRate) : 0;
+            const driverTotal = driverBase + driverVatAmount;
+            const routeflexPaysDriver = driverBase + driverVatAmount;
+            const routeflexNet = customerTotal - routeflexPaysDriver - customerVat + driverVatAmount;
+            
+            // HMRC calculations
+            const hmrcCredit = driverVatAmount;
+            const hmrcTotal = customerVat - hmrcCredit;
+            
+            // Update displays
+            document.getElementById('customerBase').textContent = `£${jobValue.toFixed(2)}`;
+            document.getElementById('customerVat').textContent = `£${customerVat.toFixed(2)}`;
+            document.getElementById('customerTotal').textContent = `£${customerTotal.toFixed(2)}`;
+            
+            document.getElementById('routeflexReceives').textContent = `£${customerTotal.toFixed(2)}`;
+            document.getElementById('routeflexCommission').textContent = `£${commissionAmount.toFixed(2)}`;
+            document.getElementById('routeflexPaysDriver').textContent = `-£${driverBase.toFixed(2)}`;
+            document.getElementById('vatToDriver').textContent = `£${driverVatAmount.toFixed(2)}`;
+            document.getElementById('routeflexNet').textContent = `£${commissionAmount.toFixed(2)}`;
+            
+            document.getElementById('driverBase').textContent = `£${driverBase.toFixed(2)}`;
+            document.getElementById('driverVat').textContent = `£${driverVatAmount.toFixed(2)}`;
+            document.getElementById('driverTotal').textContent = `£${driverTotal.toFixed(2)}`;
+            
+            document.getElementById('hmrcFromCustomer').textContent = `£${customerVat.toFixed(2)}`;
+            document.getElementById('hmrcCredit').textContent = `-£${hmrcCredit.toFixed(2)}`;
+            document.getElementById('hmrcTotal').textContent = `£${hmrcTotal.toFixed(2)}`;
+            
+            // Summary
+            document.getElementById('sumCustomer').textContent = `£${customerTotal.toFixed(0)}`;
+            document.getElementById('sumRouteflex').textContent = `£${commissionAmount.toFixed(0)}`;
+            document.getElementById('sumDriver').textContent = `£${driverTotal.toFixed(0)}`;
+            document.getElementById('sumHmrc').textContent = `£${hmrcTotal.toFixed(0)}`;
+            
+            // VAT Explanation
+            const vatExplain = document.getElementById('vatExplainText');
+            if (isVatRegistered) {
+                vatExplain.innerHTML = `
+                    The customer pays <strong>£${customerVat.toFixed(2)} VAT</strong> on their £${jobValue.toFixed(2)} job.<br><br>
+                    Since the driver <strong>IS VAT registered</strong>, they charge <strong>£${driverVatAmount.toFixed(2)} VAT</strong> on their £${driverBase.toFixed(2)} earnings. RouteFlex pays this VAT to the driver, who then pays it to HMRC.<br><br>
+                    RouteFlex can claim back the <strong>£${driverVatAmount.toFixed(2)}</strong> as "Input VAT", so HMRC only gets the difference: <strong>£${hmrcTotal.toFixed(2)}</strong>.
+                `;
+                document.getElementById('vatToDriverLine').style.display = 'flex';
+                document.getElementById('driverVatLine').style.display = 'flex';
+                document.getElementById('hmrcCreditLine').style.display = 'flex';
+            } else {
+                vatExplain.innerHTML = `
+                    The customer pays <strong>£${customerVat.toFixed(2)} VAT</strong> on their £${jobValue.toFixed(2)} job.<br><br>
+                    Since the driver is <strong>NOT VAT registered</strong>, they cannot charge VAT. RouteFlex keeps the full £${customerVat.toFixed(2)} and pays it all to HMRC. RouteFlex has no VAT to reclaim.
+                `;
+                document.getElementById('vatToDriverLine').style.display = 'none';
+                document.getElementById('driverVatLine').style.display = 'none';
+                document.getElementById('hmrcCreditLine').style.display = 'none';
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('jobValue').addEventListener('input', calculate);
+        document.getElementById('commission').addEventListener('input', calculate);
+        
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
